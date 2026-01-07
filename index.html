@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ShopZone – Real Electronics Store + Bonus</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:#f4f6f8}
+
+/* HEADER */
+header{background:#131921;color:#fff;padding:12px;text-align:center;font-size:20px}
+
+/* BONUS BANNER */
+.bonus{
+ background:linear-gradient(135deg,#00c853,#64dd17);
+ color:#fff;text-align:center;padding:12px;border-radius:8px;
+ margin-bottom:15px;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,.2)
+}
+.bonus span{display:block;font-size:14px;font-weight:normal;margin-top:4px}
+
+/* AUTH */
+.auth{
+ min-height:100vh;display:flex;align-items:center;justify-content:center;
+ background:linear-gradient(135deg,#ff9900,#ff6600)
+}
+.auth-box{
+ background:#fff;padding:25px;width:90%;max-width:360px;
+ border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25)
+}
+.auth-box h2{text-align:center;margin:10px 0}
+.auth-box input{
+ width:100%;padding:12px;margin:8px 0;border-radius:6px;
+ border:1px solid #ccc;font-size:16px
+}
+.auth-box button{
+ width:100%;padding:12px;border:none;border-radius:6px;
+ background:#ff9900;color:#000;font-size:17px;font-weight:bold;
+ cursor:pointer;margin-top:10px
+}
+.auth-box p{text-align:center;margin-top:10px}
+.link{color:#ff6600;cursor:pointer;font-weight:bold}
+
+/* APP */
+.app{display:none;padding-bottom:60px}
+.container{padding:15px}
+.search{width:100%;padding:12px;border-radius:8px;border:1px solid #ccc;font-size:16px}
+
+.products{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+ gap:15px;margin-top:15px
+}
+.card{
+ background:#fff;padding:10px;border-radius:8px;
+ box-shadow:0 2px 8px rgba(0,0,0,.1)
+}
+.card img{width:100%;height:140px;object-fit:contain}
+.card h4{margin:5px 0}
+.price{color:#b12704;font-weight:bold}
+.card button{
+ width:100%;padding:8px;border:none;border-radius:6px;
+ background:#ffd814;font-weight:bold;cursor:pointer
+}
+
+/* Bottom Nav */
+nav{
+ position:fixed;bottom:0;left:0;right:0;background:#fff;
+ display:flex;border-top:1px solid #ccc
+}
+nav button{flex:1;padding:10px;border:none;background:#fff;font-size:14px}
+.hidden{display:none}
+
+/* Bonus Wallet */
+.wallet{background:#fff;border-radius:8px;padding:15px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.wallet h4{margin:0 0 10px 0}
+.wallet button{background:#00c853;color:#fff;padding:10px;width:100%;border:none;border-radius:6px;cursor:pointer;margin-top:8px}
+</style>
+</head>
+<body>
+
+<header>🛒 ShopZone</header>
+
+<!-- SIGN UP -->
+<div class="auth" id="signupPage">
+ <div class="auth-box">
+  <div class="bonus">
+   🎁 Sign Up کرو اور ₹500 Bonus حاصل کرو
+   <span>EasyPaisa / JazzCash میں نکلوا سکتے ہو</span>
+  </div>
+  <h2>Create Account</h2>
+  <input id="suName" placeholder="Full Name">
+  <input id="suEmail" placeholder="Email">
+  <input id="suPass" type="password" placeholder="Password">
+  <button onclick="signup()">Sign Up & Get Bonus</button>
+  <p>Already have account? <span class="link" onclick="showSignin()">Sign In</span></p>
+ </div>
+</div>
+
+<!-- SIGN IN -->
+<div class="auth hidden" id="signinPage">
+ <div class="auth-box">
+  <div class="bonus">
+   🎁 Sign In کے بعد ₹500 Bonus Use کرو
+   <span>Shopping & Rewards کے لیے</span>
+  </div>
+  <h2>Welcome Back</h2>
+  <input id="siEmail" placeholder="Email">
+  <input id="siPass" type="password" placeholder="Password">
+  <button onclick="signin()">Sign In</button>
+  <p>New here? <span class="link" onclick="showSignup()">Create Account</span></p>
+ </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+ <div class="container" id="home">
+  <input class="search" placeholder="Search electronics..." oninput="search(this.value)">
+  <div class="products" id="products"></div>
+ </div>
+
+ <div class="container hidden" id="cart">
+  <h3>Cart</h3>
+  <ul id="cartList"></ul>
+ </div>
+
+ <div class="container hidden" id="profile">
+  <h3>Profile & Bonus Wallet</h3>
+  <p id="userInfo"></p>
+  <div class="wallet">
+   <h4>Bonus Wallet: ₹<span id="bonusAmount"></span></h4>
+   <button onclick="withdraw()">Withdraw Bonus (EasyPaisa/JazzCash)</button>
+  </div>
+  <button onclick="invite()">Invite Friend (Copy Link)</button>
+ </div>
+
+ <nav>
+  <button onclick="openTab('home')">Home</button>
+  <button onclick="openTab('cart')">Cart</button>
+  <button onclick="openTab('profile')">Profile</button>
+ </nav>
+</div>
+
+<script>
+const products=[
+ {n:"Laptop",p:120000,i:"https://source.unsplash.com/400x400/?laptop"},
+ {n:"PC",p:95000,i:"https://source.unsplash.com/400x400/?desktop-computer"},
+ {n:"Mobile",p:45000,i:"https://source.unsplash.com/400x400/?smartphone"},
+ {n:"Monitor",p:28000,i:"https://source.unsplash.com/400x400/?monitor"},
+ {n:"Keyboard",p:3500,i:"https://source.unsplash.com/400x400/?keyboard"},
+ {n:"Mouse",p:2500,i:"https://source.unsplash.com/400x400/?mouse"},
+ {n:"Speaker",p:6000,i:"https://source.unsplash.com/400x400/?speaker"},
+ {n:"USB",p:1500,i:"https://source.unsplash.com/400x400/?usb"},
+ {n:"Headphone",p:5000,i:"https://source.unsplash.com/400x400/?headphones"},
+ {n:"Charger",p:3000,i:"https://source.unsplash.com/400x400/?charger"},
+ {n:"Copper Wire",p:2000,i:"https://source.unsplash.com/400x400/?copper-wire"}
+];
+
+let cart=[];
+let user=null;
+const productsDiv=document.getElementById("products");
+
+function render(list){
+ productsDiv.innerHTML="";
+ list.forEach(x=>{
+  productsDiv.innerHTML+=`
+   <div class="card">
+    <img src="${x.i}">
+    <h4>${x.n}</h4>
+    <div class="price">Rs ${x.p}</div>
+    <button onclick="add('${x.n}')">Add to Cart</button>
+   </div>`;
+ });
+}
+render(products);
+
+function search(q){
+ q=q.toLowerCase();
+ render(products.filter(x=>x.n.toLowerCase().includes(q)));
+}
+
+function add(n){
+ cart.push(n);
+ cartList.innerHTML+=`<li>${n}</li>`;
+ alert("Added to cart");
+}
+
+function signup(){
+ if(!suEmail.value||!suPass.value)return alert("Fill all fields");
+ user={name:suName.value,email:suEmail.value,pass:suPass.value,bonus:500};
+ localStorage.setItem("user",JSON.stringify(user));
+ signinAuto();
+}
+
+function signin(){
+ const u=JSON.parse(localStorage.getItem("user"));
+ if(!u||siEmail.value!==u.email||siPass.value!==u.pass)
+  return alert("Wrong login");
+ user=u;
+ signinAuto();
+}
+
+function signinAuto(){
+ signupPage.style.display="none";
+ signinPage.style.display="none";
+ app.style.display="block";
+ updateProfile();
+}
+
+function updateProfile(){
+ userInfo.innerText=`Name: ${user.name}\nEmail: ${user.email}`;
+ document.getElementById("bonusAmount").innerText=user.bonus;
+}
+
+function withdraw(){
+ if(user.bonus<=0){alert("No bonus available"); return;}
+ alert("Withdraw request sent! ₹"+user.bonus+" can be transferred via EasyPaisa/JazzCash");
+ user.bonus=0;
+ updateProfile();
+ localStorage.setItem("user",JSON.stringify(user));
+}
+
+function showSignin(){signupPage.classList.add("hidden");signinPage.classList.remove("hidden")}
+function showSignup(){signinPage.classList.add("hidden");signupPage.classList.remove("hidden")}
+
+function openTab(id){
+ ["home","cart","profile"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+ document.getElementById(id).classList.remove("hidden");
+}
+
+function invite(){
+ const link=location.origin+location.pathname+"?ref="+Date.now();
+ navigator.clipboard.writeText(link);
+ alert("Invite link copied:\n"+link);
+}
+</script>
+</body>
+</html>
